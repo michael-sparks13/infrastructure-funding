@@ -84,12 +84,12 @@ fetch("data/us-states.json")
   .then(function (response) {
     return response.json();
   })
-  .then(function (counties) {
+  .then(function (states) {
     Papa.parse("data/2020_election.csv", {
       download: true,
       header: true,
       complete: function (data) {
-        processData(counties, data);
+        processData(states, data);
       },
     });
     return fetch(
@@ -106,14 +106,14 @@ fetch("data/us-states.json")
     console.log(`Oops, we ran into the following error:`, error);
   }); // end fetch and promise chain
 
-function processData(counties, data) {
+function processData(states, data) {
   //create geoid field on data object
   for (let j of data.data) {
     j.GEOID = j.STATE_FIP + j.COUNTY_FIP;
   }
 
   //then combine datasets in browser
-  for (let i of counties.features) {
+  for (let i of states.features) {
     for (let j of data.data) {
       if (i.properties.GEOID === j.GEOID) {
         i.properties.unemploymentData = j;
@@ -124,7 +124,7 @@ function processData(counties, data) {
   //create breaks once, across entire range of data
   const rates = []; //start here, remove NaN from rates
 
-  counties.features.forEach(function (county) {
+  states.features.forEach(function (county) {
     //console.log(county.properties.unemploymentData)
     for (const prop in county.properties.unemploymentData) {
       const exclude = ["COUNTY_FIP", "STATE_FIP", "NAME", "GEOID"];
@@ -147,13 +147,13 @@ function processData(counties, data) {
   let breaks = chroma.limits(rates, "l", 5);
   let colorize = chroma.scale(chroma.brewer.YlOrRd).classes(breaks).mode("lab");
 
-  drawMap(counties, colorize);
+  drawMap(states, colorize);
   drawLegend(breaks, colorize);
 } // end processData()
 
-function drawMap(counties, colorize) {
+function drawMap(states, colorize) {
   // create Leaflet object with geometry data and add to map
-  const dataLayer = L.geoJson(counties, {
+  const dataLayer = L.geoJson(states, {
     style: function (feature) {
       return {
         color: "black",
