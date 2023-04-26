@@ -21,7 +21,7 @@ setDate();
 
 // Add event listener for window resize
 // When page rotates or is resized, reset page UI
-window.addEventListener("resize", buttonUI);
+window.addEventListener("resize", buttonUI());
 
 // map options
 const options = {
@@ -33,7 +33,7 @@ const options = {
   // zoom: 4,
 };
 
-let currentYear = "2001";
+
 // create the Leaflet map
 const map = L.map("map", options);
 
@@ -80,12 +80,12 @@ map.on("zoomend", function () {
 });
 
 // AJAX request for GeoJSON data
-fetch("data/us-counties.json")
+fetch("data/us-states.json")
   .then(function (response) {
     return response.json();
   })
   .then(function (counties) {
-    Papa.parse("data/us-unemployment-counties.csv", {
+    Papa.parse("data/2020_election.csv", {
       download: true,
       header: true,
       complete: function (data) {
