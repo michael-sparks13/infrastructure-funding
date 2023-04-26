@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Infrastructure Spending: Bipartisian Infrastructure Law</title>
+    <!-- Should external libraries be updated? -->
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin=""
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Suwannaphum:wght@300&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+
+    <style></style>
+  </head>
+
+  <body>
+    <h1>Infrastructure Funding: 2021 &ndash; 2023</h1>
+    <h2 id="button">Info</h2>
+    <div id="map"></div>
+    <!-- <div id="ui-controls">
+      <label>
+        <span class="min">2001</span>
+        <span class="max">2021</span>
+        <input
+          type="range"
+          min="2001"
+          ,
+          max="2021"
+          ,
+          value="2001"
+          ,
+          step="1"
+          ,
+          class="year-slider"
+        />
+      </label>
+    </div> -->
+    <div id="modal">
+      <div class="container">
+        <span> &times; </span>
+        <h1>
+          Infrastructure Investment and Jobs Act Funding: 2021 &ndash; 2023
+        </h1>
+        <div class="description">
+          <p>
+            The Infrastructure Investment and Jobs Act, or Bipartisian
+            Infrastructure Law, or BIL as it is clunkily know, was passed into
+            law in
+            <a
+              href="https://www.congress.gov/bill/117th-congress/house-bill/3684"
+              target="_"
+            >
+              November 2021.</a
+            >
+          </p>
+          <p>
+            The bill included $550 billion in new funding for transportation and
+            roads, broadband access, clean water, and electric grid renewal.
+          </p>
+          <p>
+            This map looks at projects that have received, or been announced to
+            receive, funding across the country and across all government
+            agencies.
+          </p>
+        </div>
+        <div class="title">Methods and data sources</div>
+        <p>
+          Data pulled from multiple sources, cleaned & queried in QGIS, and then
+          combined on the fly in the browser.
+        </p>
+        <p>
+          Funding data provided by:
+          <a
+            href="https://d2d.gsa.gov/report/bipartisan-infrastructure-law-bil-maps-dashboard"
+            target="_"
+            >General Services Administration</a
+          >
+        </p>
+        <p>
+          Population Data via:
+          <a
+            href="https://www.census.gov/library/visualizations/interactive/2020-population-and-housing-state-data.html"
+            target="_"
+            >US Census Bureau</a
+          >
+        </p>
+        <p>
+          Election results courtesy
+          <a
+            href="https://www.cookpolitical.com/2020-national-popular-vote-tracker"
+            target="_"
+            >Cook Political Report</a
+          >
+          file.
+        </p>
+
+        <p>
+          map authored by
+          <a href="https://michael-sparks13.github.io/portfolio/" target="_"
+            >sparks</a
+          >
+        </p>
+        <footer>
+          <p></p>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+      integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+      crossorigin=""
+    ></script>
+    <!-- papa parse -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.1/papaparse.min.js"
+      integrity="sha512-EbdJQSugx0nVWrtyK3JdQQ/03mS3Q1UiAhRtErbwl1YL/+e2hZdlIcSURxxh7WXHTzn83sjlh2rysACoJGfb6g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <!-- latest version of chroma.js, with updated hash value via: https://www.srihash.org/ -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"
+      integrity="sha512-zInFF17qBFVvvvFpIfeBzo7Tj7+rQxLeTJDmbxjBz5/zIr89YVbTNelNhdTT+/DCrxoVzBeUPVFJsczKbB7sew=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="app.js"></script>
+  </body>
+</html>
