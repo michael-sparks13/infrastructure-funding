@@ -33,7 +33,6 @@ const options = {
   // zoom: 4,
 };
 
-
 // create the Leaflet map
 const map = L.map("map", options);
 
@@ -79,17 +78,24 @@ map.on("zoomend", function () {
   }
 });
 
-// AJAX request for GeoJSON data
-fetch("data/us-states.json")
-  .then(function (response) {
-    return response.json();
-  })
-  .then(function (states) {
+//there has to be a better way to do this?
+fetch("data/funding.csv")
+  .then(
+    Papa.parse("data/funding.csv", {
+      download: true,
+      header: true,
+      complete: function (funding) {
+          console.log(funding)
+        return funding;
+      },
+    })
+  )
+  .then(function (funding) {
     Papa.parse("data/2020_election.csv", {
       download: true,
       header: true,
       complete: function (data) {
-        processData(states, data);
+        processData(funding, data);
       },
     });
     return fetch(
@@ -106,8 +112,10 @@ fetch("data/us-states.json")
     console.log(`Oops, we ran into the following error:`, error);
   }); // end fetch and promise chain
 
-function processData(states, data) {
+function processData(funding, data) {
   //create geoid field on data object
+  console.log("funding", funding);
+  console.log("data", data);
   for (let j of data.data) {
     j.GEOID = j.STATE_FIP + j.COUNTY_FIP;
   }
@@ -147,13 +155,13 @@ function processData(states, data) {
   let breaks = chroma.limits(rates, "l", 5);
   let colorize = chroma.scale(chroma.brewer.YlOrRd).classes(breaks).mode("lab");
 
-  drawMap(states, colorize);
+  drawMap("data/us-states.json", colorize);
   drawLegend(breaks, colorize);
 } // end processData()
 
 function drawMap(states, colorize) {
   // create Leaflet object with geometry data and add to map
-  const dataLayer = L.geoJson(states, {
+  const dataLayer = L.geoJson("data/us-states.json", {
     style: function (feature) {
       return {
         color: "black",
@@ -182,7 +190,7 @@ function drawMap(states, colorize) {
     },
   }).addTo(map);
 
-  updateMap(dataLayer, colorize, currentYear);
+  //updateMap(dataLayer, colorize, currentYear);
   createSliderUI(dataLayer, colorize);
 } // end drawMap()
 
