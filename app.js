@@ -85,7 +85,7 @@ fetch("data/us-states.json")
     return response.json();
   })
   .then(function (states) {
-    Papa.parse("data/2020_election.csv", {
+    Papa.parse("data/funding.csv", {
       download: true,
       header: true,
       complete: function (data) {
