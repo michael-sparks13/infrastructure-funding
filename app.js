@@ -138,7 +138,7 @@ function processData(states, data) {
   let colorize = chroma.scale(chroma.brewer.YlOrRd).classes(breaks).mode("lab");
 
   drawMap(states, colorize);
-  //drawLegend(breaks, colorize);
+  drawLegend(breaks, colorize);
 } // end processData()
 
 function drawMap(states, colorize) {
@@ -171,7 +171,6 @@ function drawMap(states, colorize) {
       });
     },
   }).addTo(map);
-  console.log(states);
   updateMap(dataLayer, colorize);
   //createSliderUI(dataLayer, colorize);
 } // end drawMap()
@@ -192,13 +191,14 @@ function updateMap(dataLayer, colorize) {
       layer.setStyle({
         fillColor: colorize(Number(props.tot_annc_funding)),
       });
-      tooltipInfo = `<b>${props.name}</b><br>`;
+      tooltipInfo = `<b>$${props.tot_annc_funding.toLocaleString()}</b> of funding has been announced for <b>${
+        props.name
+      }</b><br>`;
     }
     layer.bindTooltip(tooltipInfo, {
       sticky: false,
     });
   });
-  console.log('updateMap() ran')
 } // end updateMap()
 
 function drawLegend(breaks, colorize) {
@@ -219,7 +219,7 @@ function drawLegend(breaks, colorize) {
 
   // select div and create legend title
   const legend = document.querySelector(".legend");
-  legend.innerHTML = "<h3><span>2001</span> Unemployment Rates</h3><ul>";
+  legend.innerHTML = "<h3><span>Announced Funding</span> In Millions</h3><ul>";
 
   // loop through the break values
   for (let i = 0; i < breaks.length - 1; i++) {
@@ -228,8 +228,8 @@ function drawLegend(breaks, colorize) {
 
     // create legend item
     const classRange = `<li><span style="background:${color}"></span>
-      ${parseFloat(breaks[i].toLocaleString()).toFixed(2)} &mdash;
-      ${parseFloat(breaks[i + 1].toLocaleString()).toFixed(2)}% </li>`;
+      ${Number((breaks[i] / 1000000).toFixed(1)).toLocaleString()}&ndash;${Number((
+      breaks[i + 1] / 1000000).toFixed(1)).toLocaleString()}</li>`;
 
     // append to legend unordered list item
     legend.innerHTML += classRange;
