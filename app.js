@@ -33,7 +33,6 @@ const options = {
   // zoom: 4,
 };
 
-
 // create the Leaflet map
 const map = L.map("map", options);
 
@@ -107,22 +106,40 @@ fetch("data/us-states.json")
   }); // end fetch and promise chain
 
 function processData(states, data) {
-  //create geoid field on data object
-  for (let j of data.data) {
-    j.GEOID = j.STATE_FIP + j.COUNTY_FIP;
-  }
-
+ 
   //then combine datasets in browser
   for (let i of states.features) {
+    i.properties.annc_funding = [];
+    i.properties.awrd_funding = [];
     for (let j of data.data) {
-      if (i.properties.GEOID === j.GEOID) {
-        i.properties.unemploymentData = j;
-        break;
+      if (i.properties.name == j.state) 
+        if (j.status == 'Announced') {
+        i.properties.annc_funding.push(j);
+      } else if (j.status == 'Awarded') {
+          i.properties.awrd_funding.push(j);
       }
     }
   }
+
+  console.log('states', states)
+
   //create breaks once, across entire range of data
-  const rates = []; //start here, remove NaN from rates
+  const announced = [];
+  const awarded = [];
+
+  for (let state of states.features) {
+      let total = 0;
+      console.log(state)
+      for (let i of state.properties.annc_funding) {
+          console.log(i);
+          total += Number(i.total_funding)
+          
+      }
+      console.log("total", total);
+      announced.push(total)
+  }
+
+  console.log('announced', announced)
 
   states.features.forEach(function (county) {
     //console.log(county.properties.unemploymentData)
@@ -148,7 +165,7 @@ function processData(states, data) {
   let colorize = chroma.scale(chroma.brewer.YlOrRd).classes(breaks).mode("lab");
 
   drawMap(states, colorize);
-  drawLegend(breaks, colorize);
+  //drawLegend(breaks, colorize);
 } // end processData()
 
 function drawMap(states, colorize) {
@@ -182,8 +199,8 @@ function drawMap(states, colorize) {
     },
   }).addTo(map);
 
-  updateMap(dataLayer, colorize, currentYear);
-  createSliderUI(dataLayer, colorize);
+  //updateMap(dataLayer, colorize, currentYear);
+  //createSliderUI(dataLayer, colorize);
 } // end drawMap()
 
 function updateMap(dataLayer, colorize, currentYear) {
