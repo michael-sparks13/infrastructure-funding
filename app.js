@@ -106,62 +106,35 @@ fetch("data/us-states.json")
   }); // end fetch and promise chain
 
 function processData(states, data) {
- 
   //then combine datasets in browser
   for (let i of states.features) {
     i.properties.annc_funding = [];
     i.properties.awrd_funding = [];
     for (let j of data.data) {
-      if (i.properties.name == j.state) 
-        if (j.status == 'Announced') {
-        i.properties.annc_funding.push(j);
-      } else if (j.status == 'Awarded') {
+      if (i.properties.name == j.state)
+        if (j.status == "Announced") {
+          i.properties.annc_funding.push(j);
+        } else if (j.status == "Awarded") {
           i.properties.awrd_funding.push(j);
-      }
+        }
     }
   }
-
-  console.log('states', states)
 
   //create breaks once, across entire range of data
   const announced = [];
   const awarded = [];
 
   for (let state of states.features) {
-      let total = 0;
-      console.log(state)
-      for (let i of state.properties.annc_funding) {
-          console.log(i);
-          total += Number(i.total_funding)
-          
-      }
-      console.log("total", total);
-      announced.push(total)
+    let total = 0;
+    for (let i of state.properties.annc_funding) {
+      total += Number(i.total_funding);
+    }
+    state.properties.tot_annc_funding = total;
+    announced.push(total);
   }
 
-  console.log('announced', announced)
-
-  states.features.forEach(function (county) {
-    //console.log(county.properties.unemploymentData)
-    for (const prop in county.properties.unemploymentData) {
-      const exclude = ["COUNTY_FIP", "STATE_FIP", "NAME", "GEOID"];
-      if (!exclude.includes(prop)) {
-        console.log(prop);
-      }
-      if (
-        prop != "GEOID" && // 15005 is Kalawao County, HI. Fascinating story.
-        prop != "NAME" &&
-        prop != "STATE_FIP" &&
-        prop != "COUNTY_FIP"
-      ) {
-        if (!county.properties.unemploymentData[prop] == false) {
-          rates.push(Number(county.properties.unemploymentData[prop]));
-        }
-      }
-    }
-  });
   //use logarithmic breaks
-  let breaks = chroma.limits(rates, "l", 5);
+  let breaks = chroma.limits(announced, "l", 5);
   let colorize = chroma.scale(chroma.brewer.YlOrRd).classes(breaks).mode("lab");
 
   drawMap(states, colorize);
@@ -198,14 +171,14 @@ function drawMap(states, colorize) {
       });
     },
   }).addTo(map);
-
-  //updateMap(dataLayer, colorize, currentYear);
+  console.log(states);
+  updateMap(dataLayer, colorize);
   //createSliderUI(dataLayer, colorize);
 } // end drawMap()
 
-function updateMap(dataLayer, colorize, currentYear) {
+function updateMap(dataLayer, colorize) {
   dataLayer.eachLayer(function (layer) {
-    let props = layer.feature.properties.unemploymentData;
+    let props = layer.feature.properties;
     //only color/add tooltip if county has data
     // Note: that chroma.js will return a color even if the value is NaN, null, etc.
     // which is #ccc.
@@ -215,19 +188,17 @@ function updateMap(dataLayer, colorize, currentYear) {
       // for a given year, otherwise it take the previous iteration's color.
     });
 
-    if (props && props[currentYear]) {
+    if (props) {
       layer.setStyle({
-        fillColor: colorize(Number(props[currentYear])),
+        fillColor: colorize(Number(props.tot_annc_funding)),
       });
-      tooltipInfo = `<b>${props.NAME}</b><br>
-        ${props[
-          currentYear
-        ].toLocaleString()}% unemployment rate in <b>${currentYear}</b>`;
+      tooltipInfo = `<b>${props.name}</b><br>`;
     }
     layer.bindTooltip(tooltipInfo, {
       sticky: false,
     });
   });
+  console.log('updateMap() ran')
 } // end updateMap()
 
 function drawLegend(breaks, colorize) {
