@@ -136,7 +136,6 @@ function processData(states, data) {
     state.properties.per_cap_annc_funding =
       state.properties.tot_annc_funding / state.properties.population;
     announced.push(total);
-    console.log(state);
   }
 
   //use logarithmic breaks
@@ -178,7 +177,7 @@ function drawMap(states, colorize) {
     },
   }).addTo(map);
   updateMap(dataLayer, colorize);
-  //createSliderUI(dataLayer, colorize);
+  addUi();
 } // end drawMap()
 
 function updateMap(dataLayer, colorize) {
@@ -209,7 +208,7 @@ function updateMap(dataLayer, colorize) {
 function drawLegend(breaks, colorize) {
   // create a Leaflet control for the legend
   const legendControl = L.control({
-    position: "topright",
+    position: "bottomright",
   });
 
   // when the control is added to the map
@@ -250,6 +249,26 @@ function drawLegend(breaks, colorize) {
   // close legend unordered list
   legend.innerHTML += "</ul>";
 } // end drawLegend()
+
+
+function addUi(counties) {
+  let selectControl = L.control({ position: "topright" });
+
+  // when control is added
+  selectControl.onAdd = function () {
+    // get the element with id attribute of ui-controls
+    return L.DomUtil.get("dropdown-ui");
+  };
+  // add the control to the map
+  selectControl.addTo(map);
+
+  const dropdown = document.querySelector("#dropdown-ui select");
+  dropdown.addEventListener("change", function (e) {
+    //attributeValue = e.target.value;
+    //updateMap(counties);
+    console.log(e.target.value)
+  });
+}
 
 function buttonUI() {
   button.style.top = h1.offsetHeight + 20 + "px";
