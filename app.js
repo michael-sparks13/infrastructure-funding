@@ -251,7 +251,7 @@ function drawLegend(breaks, colorize) {
 } // end drawLegend()
 
 
-function addUi(counties) {
+function addUi() {
   let selectControl = L.control({ position: "topright" });
 
   // when control is added
