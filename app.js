@@ -111,17 +111,19 @@ function processData(states, data) {
     i.properties.annc_funding = [];
     i.properties.awrd_funding = [];
     for (let j of data.data) {
-      if (i.properties.name == j.state)
+      if (i.properties.name == j.state) {
+        i.properties.population = Number(j.population_2020);
         if (j.status == "Announced") {
           i.properties.annc_funding.push(j);
         } else if (j.status == "Awarded") {
           i.properties.awrd_funding.push(j);
         }
+      }
     }
   }
 
   //create breaks once, across entire range of data
-  //may end up not using awarded funding... 
+  //may end up not using awarded funding...
   const announced = [];
   const awarded = [];
 
@@ -131,7 +133,10 @@ function processData(states, data) {
       total += Number(i.total_funding);
     }
     state.properties.tot_annc_funding = total;
+    state.properties.per_cap_annc_funding =
+      state.properties.tot_annc_funding / state.properties.population;
     announced.push(total);
+    console.log(state);
   }
 
   //use logarithmic breaks
@@ -229,8 +234,11 @@ function drawLegend(breaks, colorize) {
     // create legend item
     const classRange = `<li><span style="background:${color}"></span>
       
-    $${Number((breaks[i] / 1000000).toFixed(1)).toLocaleString()}&ndash;${Number((
-      breaks[i + 1] / 1000000).toFixed(1)).toLocaleString()}</li>`;
+    $${Number(
+      (breaks[i] / 1000000).toFixed(1)
+    ).toLocaleString()}&ndash;${Number(
+      (breaks[i + 1] / 1000000).toFixed(1)
+    ).toLocaleString()}</li>`;
 
     // append to legend unordered list item
     legend.innerHTML += classRange;
@@ -242,7 +250,6 @@ function drawLegend(breaks, colorize) {
   // close legend unordered list
   legend.innerHTML += "</ul>";
 } // end drawLegend()
-
 
 function buttonUI() {
   button.style.top = h1.offsetHeight + 20 + "px";
