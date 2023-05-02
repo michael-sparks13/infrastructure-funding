@@ -135,7 +135,7 @@ function processData(states, data) {
 
   //use logarithmic breaks
   let breaks = chroma.limits(announced, "l", 5);
-  let colorize = chroma.scale(chroma.brewer.YlOrRd).classes(breaks).mode("lab");
+  let colorize = chroma.scale(chroma.brewer.Greens).classes(breaks).mode("lab");
 
   drawMap(states, colorize);
   drawLegend(breaks, colorize);
@@ -228,7 +228,8 @@ function drawLegend(breaks, colorize) {
 
     // create legend item
     const classRange = `<li><span style="background:${color}"></span>
-      ${Number((breaks[i] / 1000000).toFixed(1)).toLocaleString()}&ndash;${Number((
+      
+    $${Number((breaks[i] / 1000000).toFixed(1)).toLocaleString()}&ndash;${Number((
       breaks[i + 1] / 1000000).toFixed(1)).toLocaleString()}</li>`;
 
     // append to legend unordered list item
@@ -242,42 +243,7 @@ function drawLegend(breaks, colorize) {
   legend.innerHTML += "</ul>";
 } // end drawLegend()
 
-function createSliderUI(dataLayer, colorize) {
-  // create Leaflet control for the slider
-  const sliderControl = L.control({ position: "bottomleft" });
 
-  // when added to the map
-  sliderControl.onAdd = function (map) {
-    // select an existing DOM element with an id of "ui-controls"
-    const slider = L.DomUtil.get("ui-controls");
-
-    // disable scrolling of map while using controls
-    L.DomEvent.disableScrollPropagation(slider);
-
-    // disable click events while using controls
-    L.DomEvent.disableClickPropagation(slider);
-
-    // return the slider from the onAdd method
-    return slider;
-  };
-
-  // add the control to the map
-  sliderControl.addTo(map);
-
-  const slider = document.querySelector(".year-slider");
-
-  // listen for changes on input element
-  slider.addEventListener("input", function (e) {
-    // get the value of the selected option
-    const currentYear = e.target.value;
-    // update the map with current timestamp
-    updateMap(dataLayer, colorize, currentYear);
-    // update timestamp in legend heading
-    document.querySelector(".legend h3 span").innerHTML = currentYear;
-  });
-} // end createSliderUI()
-
-//replace with resize fxn
 function buttonUI() {
   button.style.top = h1.offsetHeight + 20 + "px";
 }
