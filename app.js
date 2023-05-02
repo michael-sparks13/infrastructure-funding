@@ -135,7 +135,7 @@ function processData(states, data) {
     state.properties.tot_annc_funding = total;
     state.properties.per_cap_annc_funding =
       state.properties.tot_annc_funding / state.properties.population;
-    announced.push(total);
+    announced.push(state.properties.per_cap_annc_funding);
   }
 
   //use logarithmic breaks
@@ -193,9 +193,9 @@ function updateMap(dataLayer, colorize) {
 
     if (props) {
       layer.setStyle({
-        fillColor: colorize(Number(props.tot_annc_funding)),
+        fillColor: colorize(Number(props.per_cap_annc_funding)),
       });
-      tooltipInfo = `<b>$${props.tot_annc_funding.toLocaleString()}</b> of funding has been announced for <b>${
+      tooltipInfo = `<b>$${props.per_cap_annc_funding.toFixed().toLocaleString()}</b> of per-capita funding has been announced for <b>${
         props.name
       }</b><br>`;
     }
@@ -223,7 +223,7 @@ function drawLegend(breaks, colorize) {
 
   // select div and create legend title
   const legend = document.querySelector(".legend");
-  legend.innerHTML = "<h3>Announced Funding In Millions</h3><ul>";
+  legend.innerHTML = "<h3>Announced Funding</h3><p>per person</p><ul>";
 
   // loop through the break values
   for (let i = 0; i < breaks.length - 1; i++) {
@@ -234,9 +234,9 @@ function drawLegend(breaks, colorize) {
     const classRange = `<li><span style="background:${color}"></span>
       
     $${Number(
-      (breaks[i] / 1000000).toFixed(1)
+      (breaks[i].toFixed())
     ).toLocaleString()}&ndash;${Number(
-      (breaks[i + 1] / 1000000).toFixed(1)
+      (breaks[i + 1]).toFixed()
     ).toLocaleString()}</li>`;
 
     // append to legend unordered list item
