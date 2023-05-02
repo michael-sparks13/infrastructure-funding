@@ -121,6 +121,7 @@ function processData(states, data) {
   }
 
   //create breaks once, across entire range of data
+  //may end up not using awarded funding... 
   const announced = [];
   const awarded = [];
 
@@ -183,8 +184,7 @@ function updateMap(dataLayer, colorize) {
     // which is #ccc.
     let tooltipInfo = `<b>No data available</b></br>`;
     layer.setStyle({
-      fillColor: "#ccc", // Addendum: need to set a color for counties with no data
-      // for a given year, otherwise it take the previous iteration's color.
+      fillColor: "#ccc",
     });
 
     if (props) {
@@ -219,7 +219,7 @@ function drawLegend(breaks, colorize) {
 
   // select div and create legend title
   const legend = document.querySelector(".legend");
-  legend.innerHTML = "<h3><span>Announced Funding</span> In Millions</h3><ul>";
+  legend.innerHTML = "<h3>Announced Funding In Millions</h3><ul>";
 
   // loop through the break values
   for (let i = 0; i < breaks.length - 1; i++) {
