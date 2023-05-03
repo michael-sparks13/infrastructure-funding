@@ -111,17 +111,19 @@ function processData(states, data) {
     i.properties.annc_funding = [];
     i.properties.awrd_funding = [];
     for (let j of data.data) {
-      if (i.properties.name == j.state)
+      if (i.properties.name == j.state) {
+        i.properties.population = Number(j.population_2020);
         if (j.status == "Announced") {
           i.properties.annc_funding.push(j);
         } else if (j.status == "Awarded") {
           i.properties.awrd_funding.push(j);
         }
+      }
     }
   }
 
   //create breaks once, across entire range of data
-  //may end up not using awarded funding... 
+  //may end up not using awarded funding...
   const announced = [];
   const awarded = [];
 
@@ -131,20 +133,23 @@ function processData(states, data) {
       total += Number(i.total_funding);
     }
     state.properties.tot_annc_funding = total;
-    announced.push(total);
+    state.properties.per_cap_annc_funding =
+      state.properties.tot_annc_funding / state.properties.population;
+    announced.push(state.properties[d.i]);
   }
 
   //use logarithmic breaks
-  let breaks = chroma.limits(announced, "l", 5);
-  let colorize = chroma.scale(chroma.brewer.Greens).classes(breaks).mode("lab");
-
-  drawMap(states, colorize);
-  drawLegend(breaks, colorize);
+  d.breaks = chroma.limits(announced, "l", 5);
+  d.colorize = chroma.scale(chroma.brewer.Greens).classes(d.breaks).mode("lab");
+  d.states = states;
+  drawMap();
+  drawLegend();
+  console.log(d)
 } // end processData()
 
-function drawMap(states, colorize) {
+function drawMap() {
   // create Leaflet object with geometry data and add to map
-  const dataLayer = L.geoJson(states, {
+  d.dataLayer = L.geoJson(d.states, {
     style: function (feature) {
       return {
         color: "black",
@@ -172,12 +177,12 @@ function drawMap(states, colorize) {
       });
     },
   }).addTo(map);
-  updateMap(dataLayer, colorize);
-  //createSliderUI(dataLayer, colorize);
+  updateMap();
+  addUi();
 } // end drawMap()
 
-function updateMap(dataLayer, colorize) {
-  dataLayer.eachLayer(function (layer) {
+function updateMap() {
+  d.dataLayer.eachLayer(function (layer) {
     let props = layer.feature.properties;
     //only color/add tooltip if county has data
     // Note: that chroma.js will return a color even if the value is NaN, null, etc.
@@ -189,9 +194,9 @@ function updateMap(dataLayer, colorize) {
 
     if (props) {
       layer.setStyle({
-        fillColor: colorize(Number(props.tot_annc_funding)),
+        fillColor: d.colorize(Number(props[d.i])),
       });
-      tooltipInfo = `<b>$${props.tot_annc_funding.toLocaleString()}</b> of funding has been announced for <b>${
+      tooltipInfo = `<b>$${props[d.i].toFixed().toLocaleString()}</b> of per-capita funding has been announced for <b>${
         props.name
       }</b><br>`;
     }
@@ -201,10 +206,10 @@ function updateMap(dataLayer, colorize) {
   });
 } // end updateMap()
 
-function drawLegend(breaks, colorize) {
+function drawLegend() {
   // create a Leaflet control for the legend
   const legendControl = L.control({
-    position: "topright",
+    position: "bottomright",
   });
 
   // when the control is added to the map
@@ -219,18 +224,21 @@ function drawLegend(breaks, colorize) {
 
   // select div and create legend title
   const legend = document.querySelector(".legend");
-  legend.innerHTML = "<h3>Announced Funding In Millions</h3><ul>";
+  legend.innerHTML = "<h3>Announced Funding</h3><p>per person</p><ul>";
 
   // loop through the break values
-  for (let i = 0; i < breaks.length - 1; i++) {
+  for (let i = 0; i < d.breaks.length - 1; i++) {
     // determine color value
-    const color = colorize(breaks[i], breaks);
+    const color = d.colorize(d.breaks[i], d.breaks);
 
     // create legend item
     const classRange = `<li><span style="background:${color}"></span>
       
-    $${Number((breaks[i] / 1000000).toFixed(1)).toLocaleString()}&ndash;${Number((
-      breaks[i + 1] / 1000000).toFixed(1)).toLocaleString()}</li>`;
+    $${Number(
+      (d.breaks[i].toFixed())
+    ).toLocaleString()}&ndash;${Number(
+      (d.breaks[i + 1]).toFixed()
+    ).toLocaleString()}</li>`;
 
     // append to legend unordered list item
     legend.innerHTML += classRange;
@@ -243,6 +251,26 @@ function drawLegend(breaks, colorize) {
   legend.innerHTML += "</ul>";
 } // end drawLegend()
 
+
+function addUi() {
+  let selectControl = L.control({ position: "topright" });
+
+  // when control is added
+  selectControl.onAdd = function () {
+    // get the element with id attribute of ui-controls
+    return L.DomUtil.get("dropdown-ui");
+  };
+  // add the control to the map
+  selectControl.addTo(map);
+
+  const dropdown = document.querySelector("#dropdown-ui select");
+  dropdown.addEventListener("change", function (e) {
+    d.i = e.target.value;
+    
+    updateMap();
+    console.log(e.target.value)
+  });
+}
 
 function buttonUI() {
   button.style.top = h1.offsetHeight + 20 + "px";
