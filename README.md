@@ -13,3 +13,6 @@ Data pulled from multiple sources, cleaned & queried in QGIS, and then
           combined on the fly in the browser.
 
 Funding data via GSA & population data via Census.gov
+
+View the live site, hosted on Github pages: 
+https://michael-sparks13.github.io/infrastructure-funding/
