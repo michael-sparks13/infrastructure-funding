@@ -3,6 +3,10 @@ const modal = document.querySelector("#modal");
 const button = document.querySelector("#button");
 const h1 = document.querySelector("h1");
 
+//array to hold breaks
+const tot_announced = [];
+const per_cap_announced = [];
+
 // display modal when button is clicked
 button.addEventListener("click", function () {
   modal.style.display = "block";
@@ -109,23 +113,15 @@ function processData(states, data) {
   //then combine datasets in browser
   for (let i of states.features) {
     i.properties.annc_funding = [];
-    i.properties.awrd_funding = [];
     for (let j of data.data) {
       if (i.properties.name == j.state) {
         i.properties.population = Number(j.population_2020);
         if (j.status == "Announced") {
           i.properties.annc_funding.push(j);
-        } else if (j.status == "Awarded") {
-          i.properties.awrd_funding.push(j);
         }
       }
     }
   }
-
-  //create breaks once, across entire range of data
-  //may end up not using awarded funding...
-  const announced = [];
-  const awarded = [];
 
   for (let state of states.features) {
     let total = 0;
@@ -133,19 +129,34 @@ function processData(states, data) {
       total += Number(i.total_funding);
     }
     state.properties.tot_annc_funding = total;
+    tot_announced.push(total);
     state.properties.per_cap_annc_funding =
       state.properties.tot_annc_funding / state.properties.population;
-    announced.push(state.properties[d.i]);
+    per_cap_announced.push(state.properties.per_cap_annc_funding);
   }
-
-  //use logarithmic breaks
-  d.breaks = chroma.limits(announced, "l", 5);
-  d.colorize = chroma.scale(chroma.brewer.Greens).classes(d.breaks).mode("lab");
   d.states = states;
+
+  console.log('tot_announced', tot_announced)
+  console.log("per_cap_announced", per_cap_announced);
+  createBreaks();
   drawMap();
   drawLegend();
-  console.log(d)
+  console.log(d);
 } // end processData()
+
+function createBreaks() {
+  //
+
+  if (d.i == "per_cap_annc_funding") {
+    d.breaks = chroma.limits(per_cap_announced, "l", 5);
+  } else {
+    d.breaks = chroma.limits(tot_announced, "l", 5);
+  }
+  //use logarithmic breaks
+
+  d.colorize = chroma.scale(chroma.brewer.Greens).classes(d.breaks).mode("lab");
+  console.log("breaks", d.breaks);
+}
 
 function drawMap() {
   // create Leaflet object with geometry data and add to map
@@ -196,7 +207,9 @@ function updateMap() {
       layer.setStyle({
         fillColor: d.colorize(Number(props[d.i])),
       });
-      tooltipInfo = `<b>$${props[d.i].toFixed().toLocaleString()}</b> of per-capita funding has been announced for <b>${
+      tooltipInfo = `<b>$${props[d.i]
+        .toFixed()
+        .toLocaleString()}</b> of per-capita funding has been announced for <b>${
         props.name
       }</b><br>`;
     }
@@ -234,10 +247,8 @@ function drawLegend() {
     // create legend item
     const classRange = `<li><span style="background:${color}"></span>
       
-    $${Number(
-      (d.breaks[i].toFixed())
-    ).toLocaleString()}&ndash;${Number(
-      (d.breaks[i + 1]).toFixed()
+    $${Number(d.breaks[i].toFixed()).toLocaleString()}&ndash;${Number(
+      d.breaks[i + 1].toFixed()
     ).toLocaleString()}</li>`;
 
     // append to legend unordered list item
@@ -251,6 +262,32 @@ function drawLegend() {
   legend.innerHTML += "</ul>";
 } // end drawLegend()
 
+function updateLegend() {
+  const legend = document.querySelector(".legend");
+  legend.innerHTML = "<h3>Announced Funding</h3><p>per person</p><ul>";
+
+  // loop through the break values
+  for (let i = 0; i < d.breaks.length - 1; i++) {
+    // determine color value
+    const color = d.colorize(d.breaks[i], d.breaks);
+
+    // create legend item
+    const classRange = `<li><span style="background:${color}"></span>
+      
+    $${Number(d.breaks[i].toFixed()).toLocaleString()}&ndash;${Number(
+      d.breaks[i + 1].toFixed()
+    ).toLocaleString()}</li>`;
+
+    // append to legend unordered list item
+    legend.innerHTML += classRange;
+  }
+
+  legend.innerHTML += `<li><span style="background:#D3D3D3"></span>
+      No data
+      </li>`;
+  // close legend unordered list
+  legend.innerHTML += "</ul>";
+}
 
 function addUi() {
   let selectControl = L.control({ position: "topright" });
@@ -266,9 +303,12 @@ function addUi() {
   const dropdown = document.querySelector("#dropdown-ui select");
   dropdown.addEventListener("change", function (e) {
     d.i = e.target.value;
+
     
+    createBreaks();
     updateMap();
-    console.log(e.target.value)
+    updateLegend();
+    console.log(e.target.value);
   });
 }
 
