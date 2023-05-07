@@ -207,7 +207,6 @@ function updateMap() {
       layer.setStyle({
         fillColor: d.colorize(Number(props[d.i])),
       });
-      tooltipInfo = `<b>$${props[d.i]
 
       // Checks to see if the data is per capita or totals and styles number accordingly
       if (d.i == "per_cap_annc_funding") {
@@ -275,7 +274,7 @@ function drawLegend() {
 
 function updateLegend() {
   const legend = document.querySelector(".legend");
-
+  // Check to see if the data is per capita data ot totals data and styles legend list items accordingly
   if (d.i == "per_cap_annc_funding") {
     legend.innerHTML = "<h3>Announced Funding</h3><p>per person</p><ul>";
 
@@ -325,7 +324,7 @@ function updateLegend() {
 
     var legendWidth = document.querySelector(".legend");
     var legendLiWidth = document.querySelector(".legend li").offsetWidth;
-    legendWidth.style.minWidth = (legendLiWidth * 1.25) + 'px';
+    legendWidth.style.minWidth = (legendLiWidth * 1.2) + 'px';
 
   }
 
