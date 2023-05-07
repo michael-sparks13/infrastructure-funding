@@ -208,10 +208,21 @@ function updateMap() {
         fillColor: d.colorize(Number(props[d.i])),
       });
       tooltipInfo = `<b>$${props[d.i]
-        .toFixed()
-        .toLocaleString()}</b> of per-capita funding has been announced for <b>${
-        props.name
-      }</b><br>`;
+
+      // Checks to see if the data is per capita or totals and styles number accordingly
+      if (d.i == "per_cap_annc_funding") {
+        tooltipInfo = `<b>$${Number(props[d.i]
+          .toFixed())
+          .toLocaleString()}</b> of per-capita funding has been announced for <b>${
+          props.name
+        }</b><br>`;
+      } else {
+        tooltipInfo = `<b>$${Number((props[d.i]/ 1000000).toFixed()) 
+          .toLocaleString()}</b> million in total funding has been announced for <b>${
+          props.name
+        }</b><br>`;
+      }
+
     }
     layer.bindTooltip(tooltipInfo, {
       sticky: false,
@@ -264,29 +275,61 @@ function drawLegend() {
 
 function updateLegend() {
   const legend = document.querySelector(".legend");
-  legend.innerHTML = "<h3>Announced Funding</h3><p>per person</p><ul>";
 
-  // loop through the break values
-  for (let i = 0; i < d.breaks.length - 1; i++) {
-    // determine color value
-    const color = d.colorize(d.breaks[i], d.breaks);
+  if (d.i == "per_cap_annc_funding") {
+    legend.innerHTML = "<h3>Announced Funding</h3><p>per person</p><ul>";
 
-    // create legend item
-    const classRange = `<li><span style="background:${color}"></span>
-      
-    $${Number(d.breaks[i].toFixed()).toLocaleString()}&ndash;${Number(
-      d.breaks[i + 1].toFixed()
-    ).toLocaleString()}</li>`;
+    // loop through the break values
+    for (let i = 0; i < d.breaks.length - 1; i++) {
+      // determine color value
+      const color = d.colorize(d.breaks[i], d.breaks);
 
-    // append to legend unordered list item
-    legend.innerHTML += classRange;
+      // create legend item
+      const classRange = `<li><span style="background:${color}"></span>
+        
+      $${Number(d.breaks[i].toFixed()).toLocaleString()}&ndash;${Number(
+        d.breaks[i + 1].toFixed()
+      ).toLocaleString()}</li>`;
+
+      // append to legend unordered list item
+      legend.innerHTML += classRange;
+    }
+
+    legend.innerHTML += `<li><span style="background:#D3D3D3"></span>
+        No data
+        </li>`;
+    // close legend unordered list
+    legend.innerHTML += "</ul>";
+  } else {
+    legend.innerHTML = "<h3>Announced Funding</h3><p>Total Funds per State</p><ul>";
+
+    // loop through the break values
+    for (let i = 0; i < d.breaks.length - 1; i++) {
+      // determine color value
+      const color = d.colorize(d.breaks[i], d.breaks);
+
+      const classRange = `<li style="white-space: nowrap;"><span style="background:${color}"></span>
+      $${(Number((d.breaks[i] / 1000000).toFixed())).toLocaleString()}&ndash;
+      ${(Number((d.breaks[i + 1] / 1000000).toFixed())).toLocaleString()} million</li>`;
+
+      // append to legend unordered list item
+      legend.innerHTML += classRange;
+
+    }
+
+    legend.innerHTML += `<li><span style="background:#D3D3D3"></span>
+        No data
+        </li>`;
+    // close legend unordered list
+    legend.innerHTML += "</ul>";
+
+    var legendWidth = document.querySelector(".legend");
+    var legendLiWidth = document.querySelector(".legend li").offsetWidth;
+    legendWidth.style.minWidth = (legendLiWidth * 1.25) + 'px';
+
   }
 
-  legend.innerHTML += `<li><span style="background:#D3D3D3"></span>
-      No data
-      </li>`;
-  // close legend unordered list
-  legend.innerHTML += "</ul>";
+
 }
 
 function addUi() {
@@ -304,7 +347,7 @@ function addUi() {
   dropdown.addEventListener("change", function (e) {
     d.i = e.target.value;
 
-    
+
     createBreaks();
     updateMap();
     updateLegend();
